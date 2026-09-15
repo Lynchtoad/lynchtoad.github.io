@@ -20,7 +20,7 @@
       --accent2: #8cb07c;
     }
 
-    html { scroll-behavior: smooth; scroll-padding-top: 80px; }
+    html { scroll-behavior: smooth; scroll-padding-top: 70px; }
 
     body {
       font-family: 'Georgia', serif;
@@ -286,7 +286,7 @@
     #about {
       min-height: 100vh;
       background: #f5f5f2;
-      padding: 100px 48px 80px;
+      padding: 16px 48px 80px;
     }
 
     .about-inner { max-width: 920px; margin: 0 auto; }
@@ -511,7 +511,7 @@
 
     /* ─── LIFE / MUSIC ─── */
     #life {
-      padding: 100px 48px 80px;
+      padding: 16px 48px 80px;
       background: var(--sage-pale);
     }
 
@@ -733,8 +733,13 @@
 
     /* ─── RESPONSIVE ─── */
     @media (max-width: 768px) {
-      nav { padding: 14px 20px; }
-      #cover { flex-direction: column; padding: 100px 20px 60px; align-items: center; text-align: center; }
+      html { scroll-padding-top: 82px; }
+      nav { flex-direction: column; justify-content: center; gap: 8px; padding: 10px 16px; }
+      .nav-logo { white-space: nowrap; }
+      .nav-links { width: 100%; justify-content: space-between; gap: 8px; }
+      .nav-links a { font-size: 12px; white-space: nowrap; }
+      .nav-cta { font-size: 12px !important; padding: 6px 12px; }
+      #cover { flex-direction: column; padding: 94px 20px 60px; align-items: center; text-align: center; }
       .hero-left { max-width: 100%; }
       .hero-h1 { font-size: 44px; }
       .hero-sub { max-width: 100%; }
@@ -747,7 +752,8 @@
       .cooking-showcase { grid-template-columns: 1fr 1fr; }
       .card { padding: 22px 20px; }
       .section-heading h2 { font-size: 34px; }
-      #about, #life, #contact { padding: 80px 20px 60px; }
+      #about, #life { padding: 16px 20px 60px; }
+      #contact { padding: 80px 20px 60px; }
     }
   </style>
 </head>
