@@ -221,7 +221,7 @@
       font-family: system-ui, sans-serif;
     }
 
-    .id-rows { display: flex; flex-direction: column; gap: 10px; }
+    .id-rows { display: flex; flex-direction: column; gap: 10px; text-align: left; }
 
     .id-row {
       display: flex;
@@ -229,6 +229,7 @@
       gap: 12px;
       font-size: 13px;
     }
+    .id-row > div:last-child { min-width: 0; flex: 1; }
 
     .id-row-icon {
       width: 20px;
@@ -271,12 +272,23 @@
       white-space: nowrap;
     }
 
-    .sticker-status { top: 6px; right: 20px; color: var(--accent); }
+    .sticker-status {
+      top: -18px;
+      right: 18px;
+      padding: 9px 14px;
+      border: 1px solid var(--accent);
+      border-radius: 999px;
+      background: var(--accent);
+      color: var(--white);
+      font-size: 12px;
+      font-weight: 600;
+      box-shadow: 0 6px 18px rgba(42, 45, 38, 0.16);
+    }
     .sticker-status::before {
       content: '';
       display: inline-block;
       width: 7px; height: 7px;
-      background: var(--accent2);
+      background: var(--white);
       border-radius: 50%;
       margin-right: 5px;
       vertical-align: middle;
@@ -814,7 +826,10 @@
       .hero-btns { justify-content: center; }
       .hero-tags { justify-content: center; }
       .hero-tag { justify-content: center; }
-      .hero-right { width: 100%; }
+      .hero-right { width: 100%; padding-top: 0; display: flex; flex-direction: column; align-items: center; }
+      .sticker-status { position: static; align-self: center; margin-bottom: 14px; }
+      .id-card { width: 100%; }
+      .id-rows { max-width: 330px; margin: 0 auto; }
       .about-layout { grid-template-columns: 1fr; gap: 20px; }
       .side-card { position: static; }
       .profile-card { display: grid; grid-template-columns: 72px minmax(0, 1fr); gap: 0 16px; }
