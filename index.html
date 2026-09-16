@@ -55,15 +55,40 @@
     .nav-links { display: flex; gap: 32px; align-items: center; }
 
     .nav-links a {
+      position: relative;
+      z-index: 0;
       font-size: 14px;
       color: var(--mid);
       text-decoration: none;
       font-family: system-ui, sans-serif;
       letter-spacing: 0.01em;
-      transition: color 0.2s;
+      transition: color 0.25s, transform 0.35s cubic-bezier(0.2, 0.82, 0.2, 1);
     }
 
     .nav-links a:hover { color: var(--dark); }
+
+    .nav-links a[aria-current="page"]:not(.nav-cta) {
+      color: var(--white);
+      transform: translateY(-1px) scale(1.08);
+    }
+    .nav-links a[aria-current="page"]:not(.nav-cta)::before {
+      content: '';
+      position: absolute;
+      z-index: -1;
+      left: -13px;
+      right: -13px;
+      top: 50%;
+      height: 30px;
+      border-radius: 999px;
+      background: var(--dark);
+      box-shadow: 0 5px 14px rgba(42, 45, 38, 0.18);
+      animation: nav-pill-open 420ms cubic-bezier(0.2, 0.82, 0.2, 1) both;
+    }
+    @keyframes nav-pill-open {
+      0% { transform: translateY(-20%) scaleX(0.25) scaleY(0.42); opacity: 0; }
+      65% { transform: translateY(-50%) scaleX(1.08) scaleY(1.06); opacity: 1; }
+      100% { transform: translateY(-50%) scale(1); opacity: 1; }
+    }
 
     .nav-cta {
       background: var(--dark) !important;
@@ -760,26 +785,33 @@
     body[data-view="contact"] #about,
     body[data-view="contact"] #life { display: none; }
 
-    .page-enter-forward {
-      transform-origin: left center;
-      animation: page-enter-from-right 680ms cubic-bezier(0.18, 0.72, 0.2, 1) both;
+    .page-enter-expand {
+      transform-origin: var(--origin-x, 50vw) var(--origin-y, 72px);
+      overflow: clip;
+      animation: page-expand 720ms cubic-bezier(0.2, 0.82, 0.2, 1) both;
       backface-visibility: hidden;
+      will-change: transform, opacity, filter, border-radius;
     }
-    .page-enter-backward {
-      transform-origin: right center;
-      animation: page-enter-from-left 680ms cubic-bezier(0.18, 0.72, 0.2, 1) both;
-      backface-visibility: hidden;
-    }
-    @keyframes page-enter-from-right {
-      0% { transform: perspective(1100px) translateX(65vw) rotateY(-38deg); opacity: 0.3; }
-      100% { transform: perspective(1100px) translateX(0) rotateY(0); opacity: 1; }
-    }
-    @keyframes page-enter-from-left {
-      0% { transform: perspective(1100px) translateX(-65vw) rotateY(38deg); opacity: 0.3; }
-      100% { transform: perspective(1100px) translateX(0) rotateY(0); opacity: 1; }
+    @keyframes page-expand {
+      0% {
+        transform: translateX(var(--entry-shift, 0)) translateY(-20px) scale(0.14);
+        opacity: 0.25;
+        filter: blur(10px);
+        border-radius: 42px;
+        box-shadow: 0 20px 70px rgba(42, 45, 38, 0.28);
+      }
+      42% { opacity: 0.82; filter: blur(3px); border-radius: 26px; }
+      100% {
+        transform: translateX(0) translateY(0) scale(1);
+        opacity: 1;
+        filter: blur(0);
+        border-radius: 0;
+        box-shadow: 0 0 0 rgba(42, 45, 38, 0);
+      }
     }
     @media (prefers-reduced-motion: reduce) {
-      .page-enter-forward, .page-enter-backward { animation: none; }
+      .page-enter-expand { animation: none; }
+      .nav-links a[aria-current="page"]:not(.nav-cta)::before { animation: none; transform: translateY(-50%); }
     }
 
     .page-turn {
@@ -1233,28 +1265,33 @@
         });
       }
 
-      function turnTo(nextView) {
+      function turnTo(nextView, trigger) {
         window.clearTimeout(cleanupTimer);
         if (enteringSection) {
-          enteringSection.classList.remove('page-enter-forward', 'page-enter-backward');
+          enteringSection.classList.remove('page-enter-expand');
           enteringSection = null;
         }
         if (nextView === currentView) {
           resetScroll();
           return;
         }
-        var direction = pageOrder.indexOf(nextView) > pageOrder.indexOf(currentView)
-          ? 'page-enter-forward' : 'page-enter-backward';
+        var forward = pageOrder.indexOf(nextView) > pageOrder.indexOf(currentView);
         currentView = nextView;
         setView(nextView);
         resetScroll();
         if (reduceMotion.matches) return;
         enteringSection = document.getElementById(nextView);
-        enteringSection.classList.add(direction);
+        var rect = trigger ? trigger.getBoundingClientRect() : null;
+        var originX = rect ? rect.left + rect.width / 2 : window.innerWidth / 2;
+        var originY = rect ? rect.top + rect.height / 2 : 72;
+        enteringSection.style.setProperty('--origin-x', originX + 'px');
+        enteringSection.style.setProperty('--origin-y', originY + 'px');
+        enteringSection.style.setProperty('--entry-shift', forward ? '7vw' : '-7vw');
+        enteringSection.classList.add('page-enter-expand');
         cleanupTimer = window.setTimeout(function () {
-          enteringSection.classList.remove(direction);
+          enteringSection.classList.remove('page-enter-expand');
           enteringSection = null;
-        }, 680);
+        }, 720);
       }
       if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
       document.querySelectorAll('a[href^="#"]').forEach(function (link) {
@@ -1263,7 +1300,7 @@
           if (!views[target]) return;
           event.preventDefault();
           if (window.location.hash !== target) history.pushState(null, '', target);
-          turnTo(views[target]);
+          turnTo(views[target], link);
         });
       });
       function followHistory() { turnTo(views[window.location.hash] || 'cover'); }
